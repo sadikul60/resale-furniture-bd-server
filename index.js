@@ -18,13 +18,31 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run () {
     try {
         const categoriesCollection = client.db('ResaleFurniture').collection('categories');
+        const productsCollection = client.db('ResaleFurniture').collection('products');
 
         // get Categoris
         app.get('/categories', async(req, res) => {
             const query = {};
             const categories = await categoriesCollection.find(query).toArray();
             res.send(categories);
-        })
+        });
+
+        app.get('/products', async(req, res) => {
+            const query = {};
+            const products = await productsCollection.find(query).toArray();
+            res.send(products);
+        });
+
+        // get products
+        app.get('/products/:id', async(req, res) => {
+            const category = req.params.id;
+            const query = {categoryId: category};
+            const products = await productsCollection.find(query).toArray();
+            res.send(products);
+        });
+
+        
+
     }
     finally {
 
