@@ -43,6 +43,8 @@ async function run () {
         const bookingsCollection = client.db('ResaleFurniture').collection('bookings');
         const usersCollection = client.db('ResaleFurniture').collection('users');
 
+        // data get section=========================
+        // =========================================
         // get Categoris from mongodb
         app.get('/categories', async(req, res) => {
             const query = {};
@@ -58,13 +60,6 @@ async function run () {
             res.send(products);
         });
 
-        // post from client site and stored mongobd booking data
-        app.post('/bookings', async(req, res) => {
-            const booking = req.body;
-            const result = await bookingsCollection.insertOne(booking);
-            res.send(result);
-        });
-
         // get bookings data from mongodb
         app.get('/bookings', verifyJWT, async(req, res) => {
             const email = req.query.email;
@@ -78,13 +73,6 @@ async function run () {
             const query = {email: email};
             const bookings = await bookingsCollection.find(query).toArray();
             res.send(bookings.sort().reverse());
-        });
-
-        // post from client site and stored mongodb users data
-        app.post('/users', async(req, res) => {
-            const user = req.body;
-            const result = await usersCollection.insertOne(user);
-            res.send(result);
         });
 
         // Get jwt (user)
@@ -106,6 +94,33 @@ async function run () {
             const users = await usersCollection.find(query).toArray();
             res.send(users.sort().reverse());
         });
+
+
+        // data post section=========================
+        // =========================================
+        // post from client site and stored mongobd booking data
+        app.post('/bookings', async(req, res) => {
+            const booking = req.body;
+            const result = await bookingsCollection.insertOne(booking);
+            res.send(result);
+        });
+
+
+        // post from client site and stored mongodb users data
+        app.post('/users', async(req, res) => {
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
+        });
+
+        // post from clint site and stored mongodb addProduct
+        app.post('/addProduct', async(req, res) => {
+            const addProduct = req.body;
+            const result = await productsCollection.insertOne(addProduct);
+            res.send(result);
+        })
+
+        
 
     }
     finally {
