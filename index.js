@@ -106,29 +106,38 @@ async function run () {
             res.send(users);
         });
 
-        // get Addmin users
+
+        // get addProducts data from mongodb
+        app.get('/addProducts/:email',  async(req, res) => {
+            const email = req.params.email;
+            const query = {email: email};
+            const products = await productsCollection.find(query).toArray();
+            res.send(products.sort().reverse());
+        });
+
+        // get Addmin users (rulse)
         app.get('/users/admin/:email', async(req, res) => {
             const email = req.params.email;
             const query = { email };
             const user = await usersCollection.findOne(query);
             res.send( {isAdmin: user?.role === 'admin'} );
-        })
+        });
 
+        // get sellers (rulse)
+        app.get('/users/seller/:email', async(req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const seller = await usersCollection.findOne(query);
+            res.send( {isSeller: seller?.option === 'seller'} )
+        });
 
-        // get addProducts data from mongodb
-        app.get('/addProducts',  async(req, res) => {
-            const email = req.query.email;
-
-            const decodedEmail = req.decoded.email;
-
-            if(email !== decodedEmail){
-                return res.status(403).send({message: 'Forbidden access'});
-            }
-
-            const query = {email: email};
-            const products = await productsCollection.find(query).toArray();
-            res.send(products.sort().reverse());
-        })
+        // get sellers (rulse)
+        app.get('/users/user/:email', async(req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            res.send( {isSeller: user?.option === 'user'} )
+        });
 
 
         // data post section=========================
@@ -139,7 +148,6 @@ async function run () {
             const result = await bookingsCollection.insertOne(booking);
             res.send(result);
         });
-
 
         // post from client site and stored mongodb users data
         app.post('/users', async(req, res) => {
@@ -176,13 +184,20 @@ async function run () {
 
 
         // delete user
-        // Rap
         app.delete('/users/:id', async(req, res) => {
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
             const result = await usersCollection.deleteOne(query);
             res.send(result);
         });
+
+        // delete my product from client site and mongodb
+        app.delete('/addProducts/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await productsCollection.deleteOne(query);
+            res.send(result);
+        })
 
     }
     finally {
