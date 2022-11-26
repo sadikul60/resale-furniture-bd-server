@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
@@ -18,7 +18,6 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 // verifyJWT
 function verifyJWT (req, res, next) {
-    console.log('token inside bearer', req.headers.authorization);
     const authHeader = req.headers.authorization;
 
     if(!authHeader){
@@ -42,6 +41,9 @@ async function run () {
         const productsCollection = client.db('ResaleFurniture').collection('products');
         const bookingsCollection = client.db('ResaleFurniture').collection('bookings');
         const usersCollection = client.db('ResaleFurniture').collection('users');
+
+
+        
 
         // data get section=========================
         // =========================================
@@ -104,6 +106,23 @@ async function run () {
             res.send(users.sort().reverse());
         });
 
+        // get all Users data from mongodb
+        app.get('/users', async(req, res) => {
+            const query = {};
+            const users = await usersCollection.find(query).toArray();
+            res.send(users);
+        });
+
+        // Rap
+        app.get('/users/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const user = await usersCollection.findOne(query);
+            res.send(user);
+        });
+
+        
+
         // get addProducts data from mongodb
         app.get('/addProducts', verifyJWT, async(req, res) => {
             const email = req.query.email;
@@ -142,7 +161,26 @@ async function run () {
             const addProduct = req.body;
             const result = await productsCollection.insertOne(addProduct);
             res.send(result);
-        })
+        });
+
+        // Update section =========================
+        // ========================================
+
+        // update user
+        app.put('/users/admin/:id', async(req, res) => {
+            
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id)};
+            const options = { upsert: true};
+            const updateDoc = {
+                $set: {
+                    role: 'admin'
+                }
+            }
+
+            const result = await usersCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        });
 
     }
     finally {
