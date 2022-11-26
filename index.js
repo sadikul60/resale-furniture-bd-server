@@ -166,7 +166,7 @@ async function run () {
         // Update section =========================
         // ========================================
 
-        // update user
+        // update user (make admin by admin)
         app.put('/users/admin/:id', async(req, res) => {
             
             const id = req.params.id;
@@ -175,6 +175,23 @@ async function run () {
             const updateDoc = {
                 $set: {
                     role: 'admin'
+                }
+            }
+
+            const result = await usersCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        });
+
+
+        // sellers verify by admin
+        app.put('/users/verify/admin/:id', async(req, res) => {
+            
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id)};
+            const options = { upsert: true};
+            const updateDoc = {
+                $set: {
+                    verify: 'verified'
                 }
             }
 
