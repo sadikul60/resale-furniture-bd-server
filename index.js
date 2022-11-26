@@ -88,7 +88,15 @@ async function run () {
             res.status(403).send({accessToken: ''})
         });
 
-        // get users data from mongodb
+        // get users (All Sellers) data from mongodb
+        app.get('/users/:option', async(req, res) => {
+            const option = req.params.option;
+            const query = {option: option};
+            const users = await usersCollection.find(query).toArray();
+            res.send(users.sort().reverse());
+        });
+
+        // get users (All Buyers) data from mongodb
         app.get('/users/:option', async(req, res) => {
             const option = req.params.option;
             const query = {option: option};
