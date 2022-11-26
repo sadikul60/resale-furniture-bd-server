@@ -89,11 +89,27 @@ async function run () {
         });
 
         // get users data from mongodb
-        app.get('/users', async(req, res) => {
-            const query = {};
+        app.get('/users/:option', async(req, res) => {
+            const option = req.params.option;
+            const query = {option: option};
             const users = await usersCollection.find(query).toArray();
             res.send(users.sort().reverse());
         });
+
+        // get addProducts data from mongodb
+        app.get('/addProducts', verifyJWT, async(req, res) => {
+            const email = req.query.email;
+
+            const decodedEmail = req.decoded.email;
+
+            if(email !== decodedEmail){
+                return res.status(403).send({message: 'Forbidden access'});
+            }
+
+            const query = {email: email};
+            const products = await productsCollection.find(query).toArray();
+            res.send(products.sort().reverse());
+        })
 
 
         // data post section=========================
@@ -119,8 +135,6 @@ async function run () {
             const result = await productsCollection.insertOne(addProduct);
             res.send(result);
         })
-
-        
 
     }
     finally {
