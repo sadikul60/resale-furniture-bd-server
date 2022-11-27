@@ -1,4 +1,5 @@
 const express = require('express');
+const app = express();
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
@@ -6,7 +7,6 @@ const jwt = require('jsonwebtoken');
 
 const port = process.env.PORT || 5000;
 
-const app = express();
 
 const stripe = require('stripe')(process.env.STRIPE_KEY);
 
@@ -19,23 +19,23 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@clu
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 // verifyJWT
-// function verifyJWT (req, res, next) {
-//     const authHeader = req.headers.authorization;
+function verifyJWT (req, res, next) {
+    const authHeader = req.headers.authorization;
 
-//     if(!authHeader){
-//         return res.status(401).send('unauthorized access');
-//     }
+    if(!authHeader){
+        return res.status(401).send('unauthorized access');
+    }
 
-//     const token = authHeader.split(' ')[1];
+    const token = authHeader.split(' ')[1];
     
-//     jwt.verify(token, process.env.ACCESS_TOKEN, function(err, decoded){
-//         if(err){
-//             res.status(403).send({message: 'Forbidden access'});
-//         }
-//         req.decoded = decoded;
-//         next();
-//     })
-// }
+    jwt.verify(token, process.env.ACCESS_TOKEN, function(err, decoded){
+        if(err){
+            res.status(403).send({message: 'Forbidden access'});
+        }
+        req.decoded = decoded;
+        next();
+    })
+}
 
 async function run () {
     try {
@@ -83,7 +83,6 @@ async function run () {
             res.send(result)
         });
 
-        
         
 
         // Get jwt (user)
